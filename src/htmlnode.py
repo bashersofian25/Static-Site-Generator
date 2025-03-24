@@ -29,7 +29,7 @@ class LeafNode(HTMLNode):
         if self.tag == "" or self.tag == None:
             if self.props == None:
                 return self.value
-            else self.props != None:
+            else:
                 raise ValueError("Cannot have props with no tag")
             
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
