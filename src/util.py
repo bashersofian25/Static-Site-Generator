@@ -19,7 +19,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             new_nodes.append(old_node)
             continue
         if delimiter not in old_node.text:
-            raise Exception(f"invalid mardown, delimiter '{delimiter}' not found in text.")
+            new_nodes.append(old_node)
+            continue
         old_node_split = old_node.text.split(delimiter)
         if len(old_node_split) % 2 == 0:
             raise Exception(f"invalid markdown, no closing delimiter '{delimiter}' found.")
@@ -96,3 +97,17 @@ def split_nodes_links(old_nodes):
                 temp_nodes = flatten(temp_nodes)  
         new_nodes.extend(temp_nodes)
     return new_nodes
+
+def text_to_textnodes(text):
+    node = TextNode(text, TextType.TEXT)
+    nodes = [node]
+    if "**" in text:
+        nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    if "_" in text:
+        nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    if "`" in text:
+        nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_images(nodes)
+    nodes = split_nodes_links(nodes)
+
+    return nodes
