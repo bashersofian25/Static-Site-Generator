@@ -2,6 +2,7 @@ from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 import re
 from collections.abc import Iterable
+from blocktype import BlockType
 
 
 def text_node_to_html_node(text_node):
@@ -111,3 +112,47 @@ def text_to_textnodes(text):
     nodes = split_nodes_links(nodes)
 
     return nodes
+
+def markdown_to_blocks(markdown):
+    blocks =  list(map(lambda block: block.strip(),markdown.split("\n\n")))
+    filtered_blocks = list(filter(lambda block: block != "", blocks))
+    return filtered_blocks
+
+def is_block_heading(block):
+    return block[0] == "#"
+
+
+def is_block_code(block):
+    return block[:3] == "```" and block[-3:] == "```"
+
+def all_block_lines_start_with(block, char):
+    block_lines = block.split("\n")
+    for line in block_lines:
+        if line[0] != char:
+            return False
+    return True
+
+def is_block_qoute(block):
+    return all_block_lines_start_with(block, ">")
+
+def is_block_unordered_list(block):
+    return all_block_lines_start_with(block, "-")
+
+def is_block_ordered_list(block):
+    return all_block_lines_start_with(block, ".")
+
+
+
+def block_to_block_Type(block):
+    if(is_block_heading(block)):
+        return BlockType.HEADING
+    elif(is_block_code(block)):
+        return BlockType.CODE
+    elif(is_block_qoute(block)):
+        return BlockType.QUOTE
+    elif(is_block_ordered_list(block)):
+        return BlockType.ORDERED_LIST
+    elif(is_block_unordered_list(block)):
+        return BlockType.UNORDERED_LIST
+    else:
+        return BlockType.PARAGRAPH
