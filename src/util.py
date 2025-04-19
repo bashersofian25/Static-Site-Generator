@@ -119,8 +119,11 @@ def markdown_to_blocks(markdown):
     return filtered_blocks
 
 def is_block_heading(block):
-    return block[0] == "#"
-
+    block_arr = block.split()
+    for char in block_arr[0]:
+        if(char != "#"):
+            return False
+    return True
 
 def is_block_code(block):
     return block[:3] == "```" and block[-3:] == "```"
@@ -129,6 +132,8 @@ def all_block_lines_start_with(block, char):
     block_lines = block.split("\n")
     for line in block_lines:
         if line[0] != char:
+            return False
+        if line [1] != " " and line[0] != ">":
             return False
     return True
 
@@ -156,3 +161,79 @@ def block_to_block_Type(block):
         return BlockType.UNORDERED_LIST
     else:
         return BlockType.PARAGRAPH
+
+
+def heading_block_to_html_node(block):
+    block_arr = block.split()
+    heading_value = 0
+    for char in block_arr[0]:
+        if(char == "#"):
+            heading_value += 1
+        else:
+            raise Exception ("Invalid heading Syntax!")
+    return LeafNode(tag=f"{BlockType.HEADING.value}{heading_value}", value=" ".join(block_arr[1:]))
+
+
+def code_block_to_html_node(block):
+    return HTMLNode(tag="pre", children=[LeafNode(tag=BlockType.CODE.value, value=block[3:-3])])
+
+def paragraph_block_to_html_node(block):
+    text_nodes = text_to_textnodes(block)
+    html_nodes = []
+    for text_node in text_nodes:
+        html_nodes.append(text_node_to_html_node(text_node))
+    return HTMLNode(tag=BlockType.PARAGRAPH.value, children=html_nodes)
+
+def qoute_block_to_html_node(block):
+    block_arr = block.split(">")
+    return LeafNode(tag=BlockType.QUOTE.value, value="".join(block_arr))
+
+
+
+def list_block_to_html_node_children(block):
+    block_arr = block.split("\n")
+    list_html_nodes = []
+    for line in block_arr:
+        line_nodes = text_to_textnodes(line)
+        child_html_nodes = []
+        for text_node in line_nodes:
+            child_html_nodes.append(text_node_to_html_node(text_node))
+        list_html_nodes.append(HTMLNode(tag="li", children=child_html_nodes))
+    return list_html_nodes
+    
+
+def ordered_list_block_to_html(block):
+    return HTMLNode(tag=BlockType.ORDERED_LIST.value, children=list_block_to_html_node_children(block))
+
+
+def unordered_list_block_to_html(block):
+    return HTMLNode(tag=BlockType.UNORDERED_LIST.value, children=list_block_to_html_node_children(block))
+
+
+
+def mdblock_to_htmlnode(block):
+    block_type = block_to_block_Type(block)
+    if(block_type == BlockType.HEADING):
+        return heading_block_to_html_node(block)
+    elif(block_type == BlockType.CODE):
+        return code_block_to_html_node(block)
+    elif(block_type == BlockType.PARAGRAPH):
+        return paragraph_block_to_html_node(block)
+    elif(block_type == BlockType.QUOTE):
+        return qoute_block_to_html_node(block)
+    elif(block_type == BlockType.ORDERED_LIST):
+        return ordered_list_block_to_html(block)
+    elif(block_type == BlockType.UNORDERED_LIST):
+        return unordered_list_block_to_html(block)
+    else:
+        raise Exception("Invalid block type!")
+        
+
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    html_nodes = []
+    for block in blocks:
+        html_nodes.append(mdblock_to_htmlnode(block))
+    return HTMLNode(tag = "div", children=html_nodes)

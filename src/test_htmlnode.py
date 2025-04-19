@@ -12,9 +12,6 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode("p", "hi there", None, {"test":"myTest", "link":"myLink", "class":"myClass"})
         self.assertEqual(repr(node), f"tag: {node.tag}\nvalue: {node.value}\nchildren: {node.children}\nprops: {node.props}\n")
 
-    def test_to_html_raises_error(self):
-        node = HTMLNode("p", "hi there", None, {"test":"myTest", "link":"myLink", "class":"myClass"})
-        self.assertRaises(NotImplementedError, node.to_html)
 
     def test_leaf_to_html_p(self):
         self.assertEqual(LeafNode("p", "This is a paragraph of text.").to_html(),\
