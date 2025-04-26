@@ -2,17 +2,17 @@ import os
 from util import markdown_to_html_node
 
 
-def empty_public_directory_directory():
-    os.system('rm -rf ./public/*')
+def empty_dir_directory_directory(dir):
+    os.system(f'rm -rf ./{dir}/*')
 
-def cp_static_to_public():
-    os.system('cp -r ./static/* ./public/')
+def cp_static_to_dir(dir):
+    os.system(f'cp -r ./static/* ./{dir}/')
 
 
 
-def prepare_directory():
-    empty_public_directory_directory()
-    cp_static_to_public()
+def prepare_directory(dir):
+    empty_dir_directory_directory(dir)
+    cp_static_to_dir(dir)
 
 
 def extract_title(markdown):
@@ -49,13 +49,15 @@ def write_content_to_file(path, content):
 
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print (f"Generating page from {from_path} to {dest_path} using {template_path}")
     md_content = read_file_as_string(from_path)
     template_content = read_file_as_string(template_path)
     title = extract_title(md_content)
     page_content = template_content.replace("{{ Title }}", title)
     page_content = page_content.replace("{{ Content }}", markdown_to_html_node(md_content).to_html())
+    page_content = page_content.replace('href="/', f'href="{basepath}')
+    page_content = page_content.replace('src="/', f'src="{basepath}')
     write_content_to_file(dest_path, page_content)
 
 def clone_directory_structure(source_dir, target_dir):
@@ -70,15 +72,15 @@ def clone_directory_structure(source_dir, target_dir):
 
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath = "/"):
     dir_content = os.listdir(dir_path_content)
     for item in dir_content:
         
         if os.path.isfile(f"{dir_path_content}/{item}"):
             if item[-3:] == ".md":
-                generate_page(f"{dir_path_content}/{item}", template_path, f"{dest_dir_path}/{item}".replace("content/", "public/").replace(".md", ".html"))
+                generate_page(f"{dir_path_content}/{item}", template_path, f"{dest_dir_path}/{item}".replace("content/", "public/").replace(".md", ".html"), basepath)
         else:
-            generate_pages_recursive(f"{dir_path_content}/{item}", template_path, f"{dest_dir_path}/{item}".replace("content/", "public/"))
+            generate_pages_recursive(f"{dir_path_content}/{item}", template_path, f"{dest_dir_path}/{item}".replace("content/", "public/"), basepath)
             
                 
 
