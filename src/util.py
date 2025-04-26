@@ -130,11 +130,13 @@ def is_block_code(block):
 
 def all_block_lines_start_with(block, char):
     block_lines = block.split("\n")
+    
     for line in block_lines:
-        if line[0] != char:
+        if line[0] != char and char != ".":
             return False
-        if line [1] != " " and line[0] != ">":
-            return False
+        if len(line) >= 2:
+            if line[1] != char and char == ".":
+                return False
     return True
 
 def is_block_qoute(block):
@@ -194,7 +196,12 @@ def list_block_to_html_node_children(block):
     block_arr = block.split("\n")
     list_html_nodes = []
     for line in block_arr:
-        line_nodes = text_to_textnodes(line)
+        if(line[0] == "-" or line[0] == ">"): 
+            line_nodes = text_to_textnodes(line[1:].strip())
+        elif line[1] == ".":
+            line_nodes = text_to_textnodes(line[2:].strip())
+        else:
+            line_nodes = text_to_textnodes(line)
         child_html_nodes = []
         for text_node in line_nodes:
             child_html_nodes.append(text_node_to_html_node(text_node))
@@ -236,4 +243,6 @@ def markdown_to_html_node(markdown):
     html_nodes = []
     for block in blocks:
         html_nodes.append(mdblock_to_htmlnode(block))
+        if mdblock_to_htmlnode(block).tag == "img":
+            print(mdblock_to_htmlnode(block))
     return HTMLNode(tag = "div", children=html_nodes)

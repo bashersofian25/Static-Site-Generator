@@ -15,7 +15,6 @@ class HTMLNode:
             if(child.tag == "code"):
                 result_html += child.to_html()
             else:
-                
                 result_html += child.to_html()
         return result_html
 
@@ -42,7 +41,10 @@ class LeafNode(HTMLNode):
                 return self.value
             else:
                 raise ValueError("Cannot have props with no tag")
-        return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+        if(self.value == None):
+            self.value = ""
+
+        return f"<{self.tag}{self.props_to_html()}>{self.value.strip()}</{self.tag}>"
 
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props = None):

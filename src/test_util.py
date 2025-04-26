@@ -332,7 +332,7 @@ class TestBlockToBlockType(unittest.TestCase):
         )
 
     def test_qoute(self):
-        block = ">first line\n>second line\n>third line"
+        block = "> first line\n> second line\n> third line"
         self.assertEqual(
             block_to_block_Type(block),
             BlockType.QUOTE,
