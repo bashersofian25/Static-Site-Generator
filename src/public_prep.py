@@ -68,19 +68,16 @@ def clone_directory_structure(source_dir, target_dir):
             clone_directory_structure(f"{source_dir}/{item}", f"{target_dir}/{item}")
 
 
-    
+
 
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
-    clone_directory_structure(dir_path_content, dest_dir_path)
     dir_content = os.listdir(dir_path_content)
-    print (dir_content)
     for item in dir_content:
         
         if os.path.isfile(f"{dir_path_content}/{item}"):
             if item[-3:] == ".md":
                 generate_page(f"{dir_path_content}/{item}", template_path, f"{dest_dir_path}/{item}".replace("content/", "public/").replace(".md", ".html"))
         else:
-            print (f'{dir_path_content}/{item}=========>{os.path.isfile(f"{dir_path_content}/{item}")}')
             generate_pages_recursive(f"{dir_path_content}/{item}", template_path, f"{dest_dir_path}/{item}".replace("content/", "public/"))
             
                 
